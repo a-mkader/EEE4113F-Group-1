@@ -23,11 +23,19 @@ a:hover {
 }
 
 body {
-  margin: 0;
-  display: flex;
-  place-items: center;
-  min-width: 320px;
-  min-height: 100vh;
+  
+    margin: 0;
+    min-height: 100vh;
+    background-image: url('https://theexpeditionproject.com/wp-content/uploads/2019/08/SAM_1275.jpg');
+    background-size: cover;
+    background-position: center;
+    background-repeat: no-repeat;
+    display: flex;
+    justify-content: center;
+    align-items: center;
+    flex-direction: column;
+  
+  
 }
 
 h1 {
@@ -36,10 +44,10 @@ h1 {
 }
 
 button {
-  border-radius: 8px;
+  border-radius: 12px;
   border: 1px solid transparent;
-  padding: 0.6em 1.2em;
-  font-size: 1em;
+  padding: 1em 2em;
+  font-size: 1.25em;
   font-weight: 500;
   font-family: inherit;
   background-color: #1a1a1a;
