@@ -43,8 +43,8 @@ tilt_angle = 90
 kit.servo[0].angle = pan_angle
 kit.servo[1].angle = tilt_angle
 
-pan_pid = PID(Kp=5, Ki=1, Kd=1, output_limits=(-2, 2))
-tilt_pid = PID(Kp=5, Ki=1, Kd=1, output_limits=(-2, 2))
+pan_pid = PID(Kp=10, Ki=0.5, Kd=2.5, output_limits=(-5, 5))
+tilt_pid = PID(Kp=10, Ki=0.5, Kd=2.5, output_limits=(-5, 5))
 
 release_a = release_d = release_w = release_s = False
 loop = True
