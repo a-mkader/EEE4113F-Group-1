@@ -4,7 +4,7 @@ University of Cape Town – Department of Electrical Engineering
 
 ## 📋 Overview
 
-This repository contains the full implementation of a humane, AI-assisted deterrent system developed to protect endangered African penguins from honey badger predation. The project was completed as part of the EEE4113F Final Year Capstone Design Course.
+This repository contains the full implementation of a humane, AI-assisted deterrent system developed to protect endangered African penguins from honey badger predation. The project was completed as part of the EEE4113F Final Year Design course.
 
 The system integrates real-time animal detection, a web-controlled tactile deterrent, and a visual tracking subsystem, all deployed on low-power, field-ready hardware.
 
