@@ -9,18 +9,33 @@ from sshkeyboard import listen_keyboard, stop_listening
 from pid import PID
 
 def setup_virtual_camera():
+    # Remove any existing loopback
     subprocess.run(["sudo", "modprobe", "-r", "v4l2loopback"], stderr=subprocess.DEVNULL)
-    subprocess.run(["sudo", "modprobe", "v4l2loopback", "video_nr=30", "card_label=VirtualCam", "exclusive_caps=1"])
-    
-    # Start GStreamer pipeline
+
+    # Reload with proper caps (must include 'exclusive_caps=1', but also output capability!)
+    subprocess.run([
+        "sudo", "modprobe", "v4l2loopback",
+        "video_nr=30",
+        "card_label=VirtualCam",
+        "exclusive_caps=1",
+        "max_buffers=2"
+    ])
+
+    # Let the kernel register /dev/video30
+    time.sleep(2)
+
+    # Start GStreamer to pipe to /dev/video30
     gst_cmd = (
-    "gst-launch-1.0 libcamerasrc ! "
-    "video/x-raw,width=640,height=480,framerate=30/1 ! "
-    "videoconvert ! video/x-raw,format=YUY2 ! "
-    "v4l2sink device=/dev/video30"
+        "gst-launch-1.0 -v libcamerasrc ! "
+        "video/x-raw,width=640,height=480,framerate=30/1 ! "
+        "videoconvert ! "
+        "video/x-raw,format=YUY2 ! "
+        "queue ! "
+        "v4l2sink device=/dev/video30"
     )
 
     return subprocess.Popen(gst_cmd, shell=True, preexec_fn=os.setsid)
+
     
 def start_mediamtx():
     return subprocess.Popen(
@@ -43,8 +58,8 @@ tilt_angle = 90
 kit.servo[0].angle = pan_angle
 kit.servo[1].angle = tilt_angle
 
-pan_pid = PID(Kp=10, Ki=0.5, Kd=2.5, output_limits=(-5, 5))
-tilt_pid = PID(Kp=10, Ki=0.5, Kd=2.5, output_limits=(-5, 5))
+pan_pid = PID(Kp=1.5, Ki=0.025, Kd=0.5, output_limits=(-5, 5))
+tilt_pid = PID(Kp=1.5, Ki=0.025, Kd=0.5, output_limits=(-5, 5))
 
 release_a = release_d = release_w = release_s = False
 loop = True
@@ -117,7 +132,7 @@ stream_proc = subprocess.Popen(
         '-c:v', 'libx264',
         '-preset', 'ultrafast',
         '-f', 'rtsp',
-        'rtsp://192.168.0.71:8554/cam'
+        'rtsp://localhost:8554/cam'
     ],
     stdin=subprocess.PIPE
 )
@@ -159,8 +174,8 @@ while loop:
         pan_error = XC - center[0]
         tilt_error = YC - center[1]
 
-        pan_adjust = pan_pid.compute(pan_error, now) if abs(pan_error) > 10 else 0
-        tilt_adjust = tilt_pid.compute(tilt_error, now) if abs(tilt_error) > 10 else 0
+        pan_adjust = pan_pid.compute(pan_error, now) if abs(pan_error) > 15 else 0
+        tilt_adjust = tilt_pid.compute(tilt_error, now) if abs(tilt_error) > 15 else 0
 
         pan_angle = max(0, min(180, pan_angle + pan_adjust))
         tilt_angle = max(0, min(180, tilt_angle + tilt_adjust))
